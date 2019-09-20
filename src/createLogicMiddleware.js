@@ -34,7 +34,7 @@ export default function createLogicMiddleware(arrLogic = [], deps = {}) {
     throw new Error(`duplicate logic, indexes: ${duplicateLogic}`);
   }
 
-  const actionSrc$ = new Subject(); // mw action stream
+  let actionSrc$ = new Subject(); // mw action stream
   const monitor$ = new Subject(); // monitor all activity
   const lastPending$ = new BehaviorSubject({ op: OP_INIT });
   monitor$.pipe(
@@ -171,8 +171,7 @@ export default function createLogicMiddleware(arrLogic = [], deps = {}) {
       throw new Error(`duplicate logic, indexes: ${duplicateLogic}`);
     }
     // filter out any refs that match existing logic, then addLogic
-    const arrNewLogic = arrMergeLogic.filter(x =>
-      savedLogicArr.indexOf(x) === -1);
+    const arrNewLogic = arrMergeLogic.filter(x => savedLogicArr.indexOf(x) === -1);
     return mw.addLogic(arrNewLogic);
   };
 
@@ -187,6 +186,9 @@ export default function createLogicMiddleware(arrLogic = [], deps = {}) {
     if (duplicateLogic.length) {
       throw new Error(`duplicate logic, indexes: ${duplicateLogic}`);
     }
+
+    actionSrc$ = new Subject();
+
     const { action$, sub, logicCount: cnt } =
           applyLogic(arrRepLogic, savedStore, savedNext,
                      logicSub, actionSrc$, deps, 0, monitor$);
